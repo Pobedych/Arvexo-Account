@@ -28,14 +28,40 @@ jobs:
           chmod 600 ~/.ssh/arvexo_account_deploy
           ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
 
+      - name: Package application
+        shell: bash
+        run: |
+          tar \
+            --exclude='.git' \
+            --exclude='.env' \
+            --exclude='backend/.venv' \
+            --exclude='backend/.venv312' \
+            --exclude='frontend/node_modules' \
+            -czf /tmp/arvexo-account.tar.gz .
+
+      - name: Upload application
+        shell: bash
+        run: |
+          scp \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -i ~/.ssh/arvexo_account_deploy \
+            /tmp/arvexo-account.tar.gz \
+            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:/tmp/arvexo-account.tar.gz"
+
       - name: Deploy with Docker Compose
         shell: bash
         run: |
-          ssh -i ~/.ssh/arvexo_account_deploy "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" << 'EOF'
+          ssh \
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -i ~/.ssh/arvexo_account_deploy \
+            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" << 'EOF'
             set -euo pipefail
+            mkdir -p "${{ secrets.VPS_PROJECT_PATH }}"
+            tar -xzf /tmp/arvexo-account.tar.gz -C "${{ secrets.VPS_PROJECT_PATH }}"
             cd "${{ secrets.VPS_PROJECT_PATH }}"
-            git fetch origin main
-            git reset --hard origin/main
+            test -f .env || cp .env.example .env
             docker compose pull postgres redis nginx || true
             docker compose up -d --build
             docker compose ps
