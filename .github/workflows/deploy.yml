@@ -1,0 +1,42 @@
+name: Deploy Arvexo Account
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: arvexo-account-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        shell: bash
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/arvexo_account_deploy
+          chmod 600 ~/.ssh/arvexo_account_deploy
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy with Docker Compose
+        shell: bash
+        run: |
+          ssh -i ~/.ssh/arvexo_account_deploy "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" << 'EOF'
+            set -euo pipefail
+            cd "${{ secrets.VPS_PROJECT_PATH }}"
+            git fetch origin main
+            git reset --hard origin/main
+            docker compose pull postgres redis nginx || true
+            docker compose up -d --build
+            docker compose ps
+          EOF
