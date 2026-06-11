@@ -7,6 +7,7 @@ This first slice implements Priority 1: Docker, FastAPI backend, PostgreSQL sche
 ## Local Run
 
 ```bash
+cp .env.example .env
 docker compose up --build
 ```
 
@@ -34,15 +35,9 @@ Nginx backend health:
 http://localhost:8080/api/health
 ```
 
-Direct frontend container port:
-
-```text
-http://localhost:3002
-```
-
 ## Environment
 
-Development defaults live in `.env.example`. In dev, keep `COOKIE_DOMAIN` empty. Do not set `Domain=localhost`.
+Development defaults live in `.env.example`. Copy it to `.env` before running Docker Compose. In dev, keep `COOKIE_DOMAIN` empty. Do not set `Domain=localhost`.
 
 For production with:
 

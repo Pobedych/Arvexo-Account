@@ -30,7 +30,7 @@ services:
     container_name: arvexo-account-backend
     restart: unless-stopped
     env_file:
-      - .env.example
+      - .env
     ports:
       - "8000:8000"
     depends_on:
@@ -51,8 +51,8 @@ services:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
     container_name: arvexo-account-frontend
     restart: unless-stopped
-    ports:
-      - "3002:3000"
+    expose:
+      - "3000"
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api}
     depends_on:
