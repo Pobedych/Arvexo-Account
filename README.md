@@ -11,29 +11,23 @@ cp .env.example .env
 docker compose up --build
 ```
 
-## CI/CD
-
-GitHub Actions deployment is configured in `.github/workflows/deploy.yml`.
-
-Setup instructions and required GitHub Secrets are in `docs/GITHUB_DEPLOY.md`.
-
 Open:
 
 ```text
-http://localhost:8080
+http://localhost:3000
 ```
 
 Direct backend health:
 
 ```text
-http://localhost:8000/health
+http://localhost:8032/health
 ```
 
-Nginx backend health:
+## CI/CD
 
-```text
-http://localhost:8080/api/health
-```
+GitHub Actions deployment is configured in `.github/workflows/deploy.yml`.
+
+Setup instructions and required GitHub Secrets are in `docs/GITHUB_DEPLOY.md`.
 
 ## Environment
 

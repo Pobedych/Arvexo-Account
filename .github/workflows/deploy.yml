@@ -63,6 +63,10 @@ jobs:
             cd "${{ secrets.VPS_PROJECT_PATH }}"
             test -f .env || cp .env.example .env
             docker compose pull postgres redis nginx || true
-            docker compose up -d --build
+            if ! docker compose up -d --build; then
+              echo "Deployment failed! Printing backend logs for debugging:"
+              docker compose logs backend
+              exit 1
+            fi
             docker compose ps
           EOF
