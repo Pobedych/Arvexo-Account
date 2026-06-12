@@ -14,7 +14,7 @@ docker compose up --build
 Open:
 
 ```text
-http://localhost:3000
+http://localhost:3001
 ```
 
 Direct backend health:
