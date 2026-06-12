@@ -8,9 +8,9 @@ class Settings(BaseSettings):
     app_env: str = "development"
     api_host: str = "0.0.0.0"
     api_port: int = 8000
-    public_site_url: str = "http://localhost:3001"
+    public_site_url: str = "http://localhost:9101"
     public_api_url: str = "http://localhost:8032"
-    frontend_url: str = "http://localhost:3001"
+    frontend_url: str = "http://localhost:9101"
     database_url: str = "postgresql+psycopg://arvexo:arvexo@postgres:5432/arvexo_account"
     redis_url: str = "redis://redis:6379/0"
     jwt_secret: str = Field(default="change_me_change_me", min_length=12)
@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     seed_arvexo_study_client: bool = True
     arvexo_study_client_id: str = "arvexo-study"
     arvexo_study_client_secret: str = "dev_secret"
-    arvexo_study_redirect_uri: str = "http://localhost:3001/auth/callback"
+    arvexo_study_redirect_uri: str = "http://localhost:9101/auth/callback"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
