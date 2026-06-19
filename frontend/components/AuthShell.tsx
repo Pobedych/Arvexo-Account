@@ -1,19 +1,26 @@
 import type { ReactNode } from "react";
-import { Logo } from "@/components/Logo";
 
 export function AuthShell({ children, mode }: { children: ReactNode; mode: "login" | "register" }) {
   return (
     <main className="auth-page">
       <section className="auth-hero" aria-label="Arvexo Account">
-        <Logo />
-        <div className="auth-brand-mark" aria-hidden="true">
-          <img src="/images/arvexo-mark.png" alt="" />
+        <div className="auth-hero-logo">
+          <img src="/images/arvexo-mark.png" alt="Arvexo" />
+          <span className="auth-hero-logo-word">Arvexo</span>
         </div>
-        <h1>{mode === "login" ? "Войдите в Arvexo Account" : "Создайте Arvexo Account"}</h1>
-        <p>Единый аккаунт для сервисов Arvexo</p>
+        <div className="auth-hero-body">
+          <h1>
+            {mode === "login" ? (
+              <>Войдите в <em>Account</em></>
+            ) : (
+              <>Создайте <em>Account</em></>
+            )}
+          </h1>
+          <p>Единый аккаунт для всех сервисов экосистемы Arvexo.</p>
+        </div>
         <div className="auth-signal-list">
-          <span>httpOnly refresh sessions</span>
-          <span>Internal SSO ready</span>
+          <span>httpOnly sessions</span>
+          <span>SSO ready</span>
           <span>Arvexo ecosystem</span>
         </div>
       </section>
