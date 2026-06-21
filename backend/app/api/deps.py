@@ -1,10 +1,13 @@
+from uuid import UUID
+
 from fastapi import Cookie, Depends, Header
 from sqlalchemy.orm import Session as DBSession
 
 from app.core.cookies import REFRESH_COOKIE_NAME
 from app.core.errors import unauthorized
-from app.core.security import user_id_from_token
+from app.core.security import hash_token, user_id_from_token
 from app.db.session import get_db
+from app.models.session import Session
 from app.models.user import User
 
 
@@ -26,3 +29,15 @@ def get_refresh_cookie(arvexo_account_refresh: str | None = Cookie(default=None,
     if not arvexo_account_refresh:
         raise unauthorized("Refresh session required")
     return arvexo_account_refresh
+
+
+def get_current_session_id(
+    arvexo_account_refresh: str | None = Cookie(default=None, alias=REFRESH_COOKIE_NAME),
+    db: DBSession = Depends(get_db),
+) -> UUID | None:
+    if not arvexo_account_refresh:
+        return None
+    session = db.query(Session).filter(
+        Session.refresh_token_hash == hash_token(arvexo_account_refresh)
+    ).one_or_none()
+    return session.id if session else None

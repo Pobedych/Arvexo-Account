@@ -24,3 +24,7 @@ def bad_request(code: str, message: str) -> ApiError:
 
 def conflict(code: str, message: str) -> ApiError:
     return ApiError(status.HTTP_409_CONFLICT, code, message)
+
+
+def not_found(code: str, message: str) -> ApiError:
+    return ApiError(status.HTTP_404_NOT_FOUND, code, message)

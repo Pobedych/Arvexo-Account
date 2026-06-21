@@ -30,6 +30,21 @@ export type ProviderStatus = {
   telegram: boolean;
 };
 
+export type Identity = {
+  provider: string;
+  provider_email: string | null;
+  created_at: string;
+};
+
+export type UserSession = {
+  id: string;
+  user_agent: string | null;
+  ip_address: string | null;
+  created_at: string;
+  expires_at: string;
+  current: boolean;
+};
+
 let accessToken: string | null = null;
 
 export function setAccessToken(token: string | null) {
@@ -57,6 +72,7 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
     const payload = (await response.json().catch(() => ({}))) as ApiErrorBody;
     throw new Error(payload.error?.message ?? "Не удалось выполнить запрос.");
   }
+  if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
 }
 
@@ -64,4 +80,9 @@ export async function refreshAccessToken() {
   const data = await apiRequest<{ access_token: string }>("/auth/refresh", { method: "POST" });
   setAccessToken(data.access_token);
   return data.access_token;
+}
+
+export async function withAuth<T>(fn: (token: string) => Promise<T>): Promise<T> {
+  const token = await refreshAccessToken();
+  return fn(token);
 }

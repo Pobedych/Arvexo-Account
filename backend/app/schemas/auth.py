@@ -40,3 +40,30 @@ class OAuthStatusResponse(BaseModel):
     google: bool
     yandex: bool
     telegram: bool
+
+
+class UpdateProfileRequest(BaseModel):
+    name: str | None = Field(default=None, max_length=120)
+    last_name: str | None = Field(default=None, max_length=120)
+    phone: str | None = Field(default=None, max_length=40)
+    avatar_url: str | None = Field(default=None, max_length=2048)
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(min_length=1, max_length=128)
+    new_password: str = Field(min_length=8, max_length=128)
+
+
+class IdentityRead(BaseModel):
+    provider: str
+    provider_email: str | None
+    created_at: datetime
+
+
+class SessionRead(BaseModel):
+    id: UUID
+    user_agent: str | None
+    ip_address: str | None
+    created_at: datetime
+    expires_at: datetime
+    current: bool

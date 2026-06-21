@@ -4,8 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette import status
 
+from app.api.routes.account import router as account_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.health import router as health_router
+from app.api.routes.sessions import router as sessions_router
 from app.core.config import settings
 
 
@@ -47,3 +49,5 @@ async def unhandled_exception_handler(_: Request, exc: Exception) -> JSONRespons
 
 app.include_router(health_router)
 app.include_router(auth_router)
+app.include_router(account_router)
+app.include_router(sessions_router)
