@@ -67,3 +67,40 @@ class SessionRead(BaseModel):
     created_at: datetime
     expires_at: datetime
     current: bool
+
+
+# ── SSO ──────────────────────────────────────────
+
+class SSOClientInfo(BaseModel):
+    client_id: str
+    name: str
+
+
+class SSOConfirmRequest(BaseModel):
+    client_id: str
+    redirect_uri: str
+    state: str | None = None
+    scope: str | None = None
+
+
+class SSOConfirmResponse(BaseModel):
+    redirect_url: str
+
+
+class SSOExchangeRequest(BaseModel):
+    client_id: str
+    client_secret: str
+    code: str
+    redirect_uri: str
+
+
+class SSOUserPublic(BaseModel):
+    id: UUID
+    email: str | None
+    name: str | None
+    avatar_url: str | None
+
+
+class SSOExchangeResponse(BaseModel):
+    account_user: SSOUserPublic
+    expires_in: int

@@ -898,6 +898,82 @@ input::placeholder {
   text-align: center;
 }
 
+/* ── SSO consent ────────────────────────────── */
+
+.sso-consent {
+  display: grid;
+  gap: 18px;
+}
+
+.sso-service-badge {
+  display: inline-block;
+  border: 1px solid var(--hairline-md);
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg);
+}
+
+.sso-consent h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -.025em;
+}
+
+.sso-consent > p {
+  margin: -8px 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.sso-user-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border: 1px solid var(--hairline-md);
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: var(--bg);
+}
+
+.sso-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--hairline-md);
+  background: var(--surface-alt);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.sso-user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.sso-user-email {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.sso-switch {
+  justify-content: center;
+  width: 100%;
+  font-size: 13px;
+}
+
 /* ── Account card link ──────────────────────── */
 
 .account-card-link {

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { apiRequest, type AuthResponse, type ProviderStatus, setAccessToken } from "@/lib/api";
 import { ProviderButtons } from "@/components/ProviderButtons";
 
@@ -10,8 +10,11 @@ type AuthFormProps = {
   mode: "login" | "register";
 };
 
-export function AuthForm({ mode }: AuthFormProps) {
+function AuthFormContent({ mode }: AuthFormProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "/account";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -33,10 +36,10 @@ export function AuthForm({ mode }: AuthFormProps) {
       const payload = mode === "register" ? { email, password, name } : { email, password };
       const data = await apiRequest<AuthResponse>(`/auth/${mode}`, {
         method: "POST",
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
       setAccessToken(data.access_token);
-      router.push("/account");
+      router.push(next);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Не удалось выполнить запрос.");
     } finally {
@@ -44,19 +47,22 @@ export function AuthForm({ mode }: AuthFormProps) {
     }
   }
 
+  const registerHref = mode === "login" && next !== "/account" ? `/register?next=${encodeURIComponent(next)}` : "/register";
+  const loginHref = mode === "register" && next !== "/account" ? `/login?next=${encodeURIComponent(next)}` : "/login";
+
   return (
     <form className="auth-form" onSubmit={submit}>
       <div className="auth-tabs">
-        <Link className={mode === "login" ? "active" : ""} href="/login">
+        <Link className={mode === "login" ? "active" : ""} href={loginHref}>
           Вход
         </Link>
-        <Link className={mode === "register" ? "active" : ""} href="/register">
+        <Link className={mode === "register" ? "active" : ""} href={registerHref}>
           Регистрация
         </Link>
       </div>
       <div className="form-copy">
         <h2>{mode === "login" ? "Войдите, чтобы продолжить" : "Регистрация"}</h2>
-        <p>Управляйте профилем и активными сессиями Arvexo Account.</p>
+        <p>Единый аккаунт для сервисов Arvexo.</p>
       </div>
       {mode === "register" && (
         <label>
@@ -89,5 +95,13 @@ export function AuthForm({ mode }: AuthFormProps) {
       </div>
       <ProviderButtons providers={providers} />
     </form>
+  );
+}
+
+export function AuthForm({ mode }: AuthFormProps) {
+  return (
+    <Suspense fallback={null}>
+      <AuthFormContent mode={mode} />
+    </Suspense>
   );
 }
