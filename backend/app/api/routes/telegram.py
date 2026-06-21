@@ -44,11 +44,6 @@ _jwks_client = PyJWKClient(_TELEGRAM_JWKS_URL, cache_keys=True)
 _FE = lambda path: f"{settings.frontend_url.rstrip('/')}{path}"  # noqa: E731
 
 
-def _bot_id() -> str:
-    """Extract numeric bot ID from token (format: {id}:{secret})."""
-    return settings.telegram_bot_token.split(":")[0]
-
-
 def _pkce_pair() -> tuple[str, str]:
     """Generate (code_verifier, code_challenge_S256) pair."""
     verifier = secrets.token_urlsafe(64)
@@ -60,7 +55,7 @@ def _pkce_pair() -> tuple[str, str]:
 
 def _build_auth_url(redirect_uri: str, state: str, code_challenge: str) -> str:
     return _TELEGRAM_AUTH_URL + "?" + urlencode({
-        "client_id": _bot_id(),
+        "client_id": settings.telegram_client_id,
         "response_type": "code",
         "scope": "openid profile",
         "redirect_uri": redirect_uri,
@@ -79,8 +74,8 @@ def _exchange_code(code: str, redirect_uri: str, code_verifier: str) -> dict:
                 "grant_type": "authorization_code",
                 "code": code,
                 "redirect_uri": redirect_uri,
-                "client_id": _bot_id(),
-                "client_secret": settings.telegram_bot_token,
+                "client_id": settings.telegram_client_id,
+                "client_secret": settings.telegram_client_secret,
                 "code_verifier": code_verifier,
             },
         )
@@ -97,7 +92,7 @@ def _verify_id_token(id_token: str) -> dict:
             id_token,
             signing_key.key,
             algorithms=["RS256", "ES256", "EdDSA", "ES256K"],
-            audience=_bot_id(),
+            audience=settings.telegram_client_id,
             issuer=_TELEGRAM_ISSUER,
         )
         return payload

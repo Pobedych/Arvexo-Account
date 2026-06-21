@@ -30,9 +30,10 @@ class Settings(BaseSettings):
     yandex_client_secret: str = ""
     yandex_redirect_uri: str = "http://localhost:8032/auth/yandex/callback"
 
-    # Telegram OIDC
-    telegram_bot_token: str = ""
-    telegram_bot_username: str = ""
+    # Telegram OIDC (Client ID и Secret берутся из BotFather → Login Widget → OpenID Connect)
+    telegram_client_id: str = ""
+    telegram_client_secret: str = ""
+    telegram_bot_token: str = ""   # нужен только для проверки is_configured
     telegram_redirect_uri: str = "http://localhost:8032/auth/telegram/callback"
 
     # SSO seed
@@ -67,7 +68,7 @@ class Settings(BaseSettings):
         return {
             "google": bool(self.google_client_id and self.google_client_secret),
             "yandex": bool(self.yandex_client_id and self.yandex_client_secret),
-            "telegram": bool(self.telegram_bot_token),
+            "telegram": bool(self.telegram_client_id and self.telegram_client_secret),
             "telegram_bot_username": self.telegram_bot_username or None,
         }
 
