@@ -1,6 +1,7 @@
 "use client";
 
 import { Globe, Laptop, Lock, Shield, Trash2, UserRound } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AccountLayout } from "@/components/AccountLayout";
@@ -100,9 +101,9 @@ export function AccountDashboard() {
             <span key={p} className="provider-chip">{p}</span>
           ))}
         </div>
-        <a href="/security" className="secondary-button account-profile-edit-btn">
+        <Link href="/security" className="secondary-button account-profile-edit-btn">
           Редактировать аккаунт
-        </a>
+        </Link>
       </div>
 
       {/* Карточки */}
@@ -121,9 +122,9 @@ export function AccountDashboard() {
             </>
           );
           return card.href ? (
-            <a key={card.title} href={card.href} className="google-card">
+            <Link key={card.title} href={card.href} className="google-card">
               {inner}
-            </a>
+            </Link>
           ) : (
             <div key={card.title} className="google-card google-card--disabled">
               {inner}

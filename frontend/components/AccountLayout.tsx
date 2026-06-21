@@ -1,6 +1,7 @@
 "use client";
 
 import { Laptop, LogOut, Shield, UserRound } from "lucide-react";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { apiRequest, refreshAccessToken, setAccessToken } from "@/lib/api";
 
@@ -34,9 +35,9 @@ export function AccountLayout({ children }: { children: React.ReactNode }) {
         <img src="/images/arvexo-mark.png" alt="Arvexo" className="sidebar-mark" />
         <nav>
           {NAV.map(({ href, icon, label }) => (
-            <a key={href} href={href} className={pathname === href ? "active" : ""}>
+            <Link key={href} href={href} className={pathname === href ? "active" : ""}>
               {icon} {label}
-            </a>
+            </Link>
           ))}
         </nav>
         <button className="ghost-button" type="button" onClick={logout}>
