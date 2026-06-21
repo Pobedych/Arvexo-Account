@@ -28,7 +28,7 @@ export type ProviderStatus = {
   google: boolean;
   yandex: boolean;
   telegram: boolean;
-  telegram_bot_username: string | null;
+  telegram_bot_username?: string | null;
 };
 
 export type Identity = {
