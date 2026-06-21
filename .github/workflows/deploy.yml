@@ -63,6 +63,12 @@ jobs:
             tar -xzf /tmp/arvexo-account.tar.gz -C "${{ secrets.VPS_PROJECT_PATH }}"
             cd "${{ secrets.VPS_PROJECT_PATH }}"
             test -f .env || cp .env.example .env
+            # Ensure NGINX_PORT is set to 9100 (host port 80 is taken by system nginx).
+            if grep -q '^NGINX_PORT=' .env; then
+              sed -i 's/^NGINX_PORT=.*/NGINX_PORT=9100/' .env
+            else
+              echo 'NGINX_PORT=9100' >> .env
+            fi
             docker compose pull postgres redis nginx || true
             if ! docker compose up -d --build; then
               echo "Deployment failed! Printing backend logs for debugging:"

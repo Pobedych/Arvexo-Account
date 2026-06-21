@@ -64,7 +64,7 @@ services:
     container_name: arvexo-account-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "${NGINX_PORT:-9100}:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
