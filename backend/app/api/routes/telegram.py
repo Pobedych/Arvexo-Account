@@ -78,6 +78,7 @@ def _exchange_code(code: str, redirect_uri: str, code_verifier: str) -> dict:
                 "client_secret": settings.telegram_client_secret,
                 "code_verifier": code_verifier,
             },
+            headers={"Accept-Encoding": "identity"},
         )
     if resp.status_code != 200:
         raise bad_request("TELEGRAM_TOKEN_ERROR", f"Telegram token exchange failed: {resp.text}")
@@ -132,16 +133,30 @@ def telegram_callback(
     request: Request,
     db: DBSession = Depends(get_db),
 ) -> RedirectResponse:
+    state_data: dict = {}
     try:
         state_data = decode_oauth_state(state)
-        if state_data.get("action") != "login":
-            raise bad_request("INVALID_STATE", "Invalid state action")
-
+        action = state_data.get("action")
         code_verifier = state_data.get("extra", {}).get("cv", "")
         tokens = _exchange_code(code, settings.telegram_redirect_uri, code_verifier)
         claims = _verify_id_token(tokens["id_token"])
         profile = _profile_from_claims(claims)
 
+        if action == "connect":
+            user_id = state_data.get("user_id")
+            if not user_id:
+                raise bad_request("INVALID_STATE", "Missing user in state")
+            from uuid import UUID
+            user = db.get(__import__("app.models.user", fromlist=["User"]).User, UUID(user_id))
+            if not user or not user.is_active:
+                raise bad_request("INVALID_USER", "User not found")
+            connect_oauth_identity(db, user, "telegram", profile)
+            db.commit()
+            return RedirectResponse(_FE("/security?connected=telegram"), status_code=302)
+
+        # login flow
+        if action != "login":
+            raise bad_request("INVALID_STATE", "Invalid state action")
         user, _ = upsert_oauth_user(
             db, "telegram", profile,
             request_ip=request_ip(request),
@@ -156,7 +171,8 @@ def telegram_callback(
     except Exception as exc:
         from urllib.parse import quote
         msg = exc.detail["message"] if hasattr(exc, "detail") and isinstance(exc.detail, dict) else str(exc)
-        return RedirectResponse(_FE(f"/login?error={quote(msg)}"), status_code=302)
+        error_page = "/security" if state_data.get("action") == "connect" else "/login"  # type: ignore[possibly-undefined]
+        return RedirectResponse(_FE(f"{error_page}?error={quote(msg)}"), status_code=302)
 
 
 # ── Connect flow ─────────────────────────────────────────────────────────────
@@ -175,9 +191,8 @@ def telegram_connect(
 
     code_verifier, code_challenge = _pkce_pair()
     state = create_oauth_state("connect", user_id=str(session.user.id), extra={"cv": code_verifier})
-    connect_uri = settings.telegram_redirect_uri.replace("/callback", "/connect/callback")
     return RedirectResponse(
-        _build_auth_url(connect_uri, state, code_challenge),
+        _build_auth_url(settings.telegram_redirect_uri, state, code_challenge),
         status_code=302,
     )
 

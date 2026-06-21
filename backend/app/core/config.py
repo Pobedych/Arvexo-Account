@@ -69,7 +69,6 @@ class Settings(BaseSettings):
             "google": bool(self.google_client_id and self.google_client_secret),
             "yandex": bool(self.yandex_client_id and self.yandex_client_secret),
             "telegram": bool(self.telegram_client_id and self.telegram_client_secret),
-            "telegram_bot_username": self.telegram_bot_username or None,
         }
 
 
