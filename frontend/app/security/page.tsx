@@ -28,9 +28,16 @@ function SecurityPageInner() {
 
   useEffect(() => {
     async function load() {
+      let token: string;
       try {
-        const token = await refreshAccessToken();
+        token = await refreshAccessToken();
         setAccessToken(token);
+      } catch (e) {
+        // Нет сессии — редирект на логин
+        router.push("/login");
+        return;
+      }
+      try {
         const [data, prov] = await Promise.all([
           apiRequest<Identity[]>("/account/identities", { headers: { Authorization: `Bearer ${token}` } }),
           apiRequest<ProviderStatus>("/auth/providers"),
@@ -38,8 +45,10 @@ function SecurityPageInner() {
         setIdentities(data);
         setProviders(prov);
         setHasPassword(data.some((i) => i.provider === "email"));
-      } catch {
-        router.push("/login");
+      } catch (e) {
+        // Показываем ошибку вместо редиректа
+        setError(e instanceof Error ? e.message : "Ошибка загрузки данных");
+        setIdentities([]);
       }
     }
     load();
