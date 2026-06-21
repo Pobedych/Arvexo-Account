@@ -1,9 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import { AccountLayout } from "@/components/AccountLayout";
-import { apiRequest, refreshAccessToken, setAccessToken, type Identity } from "@/lib/api";
+import { TelegramLoginButton } from "@/components/TelegramLoginButton";
+import { API_URL, apiRequest, refreshAccessToken, setAccessToken, type Identity, type ProviderStatus } from "@/lib/api";
 
 const PROVIDER_LABELS: Record<string, string> = {
   email: "Email / пароль",
@@ -12,12 +13,14 @@ const PROVIDER_LABELS: Record<string, string> = {
   google: "Google",
 };
 
-export default function SecurityPage() {
+function SecurityPageInner() {
   const router = useRouter();
+  const params = useSearchParams();
   const [identities, setIdentities] = useState<Identity[] | null>(null);
+  const [providers, setProviders] = useState<ProviderStatus | null>(null);
   const [hasPassword, setHasPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error, setError] = useState(params.get("error") ?? "");
+  const [success, setSuccess] = useState(params.get("connected") ? `${params.get("connected")} успешно подключён` : "");
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
 
   const [currentPwd, setCurrentPwd] = useState("");
@@ -29,10 +32,12 @@ export default function SecurityPage() {
       try {
         const token = await refreshAccessToken();
         setAccessToken(token);
-        const data = await apiRequest<Identity[]>("/account/identities", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const [data, prov] = await Promise.all([
+          apiRequest<Identity[]>("/account/identities", { headers: { Authorization: `Bearer ${token}` } }),
+          apiRequest<ProviderStatus>("/auth/providers"),
+        ]);
         setIdentities(data);
+        setProviders(prov);
         setHasPassword(data.some((i) => i.provider === "email"));
       } catch {
         router.push("/login");
@@ -133,6 +138,30 @@ export default function SecurityPage() {
         </section>
       )}
 
+      {/* Connect new providers */}
+      {providers && (
+        <section className="settings-section">
+          <h2 className="settings-section-title">Подключить способ входа</h2>
+          <div className="connect-providers">
+            {providers.yandex && !identities?.some((i) => i.provider === "yandex") && (
+              <a className="provider-button" href={`${API_URL}/auth/yandex/connect`}>
+                <span className="provider-letter provider-yandex">Я</span>
+                <span>Подключить Яндекс</span>
+              </a>
+            )}
+            {providers.telegram && providers.telegram_bot_username && !identities?.some((i) => i.provider === "telegram") && (
+              <div className="provider-button provider-telegram-wrap">
+                <TelegramLoginButton
+                  botUsername={providers.telegram_bot_username}
+                  onSuccess={() => { setSuccess("Telegram успешно подключён"); setIdentities((prev) => prev ? [...prev, { provider: "telegram", provider_email: null, created_at: new Date().toISOString() }] : prev); }}
+                  onError={(msg) => setError(msg)}
+                />
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
       <section className="settings-section">
         <h2 className="settings-section-title">Подключённые способы входа</h2>
         <div className="identities-list">
@@ -165,5 +194,13 @@ export default function SecurityPage() {
         </div>
       </section>
     </AccountLayout>
+  );
+}
+
+export default function SecurityPage() {
+  return (
+    <Suspense>
+      <SecurityPageInner />
+    </Suspense>
   );
 }

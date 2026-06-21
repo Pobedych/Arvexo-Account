@@ -40,6 +40,7 @@ class OAuthStatusResponse(BaseModel):
     google: bool
     yandex: bool
     telegram: bool
+    telegram_bot_username: str | None = None
 
 
 class UpdateProfileRequest(BaseModel):

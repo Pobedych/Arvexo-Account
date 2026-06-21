@@ -7,8 +7,10 @@ from starlette import status
 from app.api.routes.account import router as account_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.health import router as health_router
+from app.api.routes.oauth import router as oauth_router
 from app.api.routes.sessions import router as sessions_router
 from app.api.routes.sso import router as sso_router
+from app.api.routes.telegram import router as telegram_router
 from app.core.config import settings
 
 
@@ -53,3 +55,5 @@ app.include_router(auth_router)
 app.include_router(account_router)
 app.include_router(sessions_router)
 app.include_router(sso_router)
+app.include_router(oauth_router)
+app.include_router(telegram_router)

@@ -19,11 +19,22 @@ class Settings(BaseSettings):
     cookie_domain: str | None = None
     cookie_secure: bool = False
     cookie_samesite: str = "lax"
+
+    # Google OAuth (disabled until credentials are set)
     google_client_id: str = ""
     google_client_secret: str = ""
+    google_redirect_uri: str = "http://localhost:8032/auth/google/callback"
+
+    # Yandex OAuth
     yandex_client_id: str = ""
     yandex_client_secret: str = ""
+    yandex_redirect_uri: str = "http://localhost:8032/auth/yandex/callback"
+
+    # Telegram Login Widget
     telegram_bot_token: str = ""
+    telegram_bot_username: str = ""
+
+    # SSO seed
     seed_arvexo_study_client: bool = True
     arvexo_study_client_id: str = "arvexo-study"
     arvexo_study_client_secret: str = "dev_secret"
@@ -51,11 +62,12 @@ class Settings(BaseSettings):
         return sorted(origin.rstrip("/") for origin in origins if origin)
 
     @property
-    def oauth_enabled(self) -> dict[str, bool]:
+    def oauth_enabled(self) -> dict:
         return {
             "google": bool(self.google_client_id and self.google_client_secret),
             "yandex": bool(self.yandex_client_id and self.yandex_client_secret),
             "telegram": bool(self.telegram_bot_token),
+            "telegram_bot_username": self.telegram_bot_username or None,
         }
 
 
