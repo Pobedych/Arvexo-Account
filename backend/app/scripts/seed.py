@@ -29,6 +29,25 @@ def seed(db: Session) -> None:
                     is_active=True,
                 )
             )
+    if settings.seed_arvexo_consulting_client:
+        consulting = db.query(OAuthClient).filter(OAuthClient.client_id == settings.arvexo_consulting_client_id).one_or_none()
+        if not consulting:
+            db.add(
+                OAuthClient(
+                    client_id=settings.arvexo_consulting_client_id,
+                    client_secret_hash=hash_password(settings.arvexo_consulting_client_secret),
+                    name="Arvexo AI Consulting",
+                    allowed_redirect_uris=[
+                        settings.arvexo_consulting_redirect_uri,
+                        "https://ai.arvexo.ru/api/auth/callback",
+                    ],
+                    allowed_origins=[
+                        "http://localhost:8000",
+                        "https://ai.arvexo.ru",
+                    ],
+                    is_active=True,
+                )
+            )
     db.commit()
 
 

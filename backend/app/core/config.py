@@ -36,11 +36,17 @@ class Settings(BaseSettings):
     telegram_bot_token: str = ""   # нужен только для проверки is_configured
     telegram_redirect_uri: str = "http://localhost:8032/auth/telegram/callback"
 
-    # SSO seed
+    # SSO seed — Arvexo Study
     seed_arvexo_study_client: bool = True
     arvexo_study_client_id: str = "arvexo-study"
     arvexo_study_client_secret: str = "dev_secret"
     arvexo_study_redirect_uri: str = "http://localhost:9101/auth/callback"
+
+    # SSO seed — Arvexo Consulting
+    seed_arvexo_consulting_client: bool = True
+    arvexo_consulting_client_id: str = "arvexo-consulting"
+    arvexo_consulting_client_secret: str = "dev_consulting_secret"
+    arvexo_consulting_redirect_uri: str = "http://localhost:8000/api/auth/callback"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
