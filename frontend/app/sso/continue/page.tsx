@@ -6,6 +6,14 @@ import { apiRequest, refreshAccessToken, setAccessToken, type AccountUser } from
 
 type ClientInfo = { client_id: string; name: string };
 
+function Avatar({ user }: { user: AccountUser }) {
+  const initials = (user.name || user.email || "A").slice(0, 1).toUpperCase();
+  if (user.avatar_url) {
+    return <img src={user.avatar_url} alt={initials} className="sso-big-avatar-img" />;
+  }
+  return <div className="sso-big-avatar-letter">{initials}</div>;
+}
+
 function SSOContinueContent() {
   const router = useRouter();
   const params = useSearchParams();
@@ -31,9 +39,7 @@ function SSOContinueContent() {
         const token = await refreshAccessToken();
         setAccessToken(token);
         const [profile, info] = await Promise.all([
-          apiRequest<AccountUser>("/auth/me", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+          apiRequest<AccountUser>("/auth/me", { headers: { Authorization: `Bearer ${token}` } }),
           apiRequest<ClientInfo>(`/sso/client?client_id=${encodeURIComponent(clientId)}`),
         ]);
         setUser(profile);
@@ -80,84 +86,63 @@ function SSOContinueContent() {
 
   if (error && !user) {
     return (
-      <main className="auth-page">
-        <div className="auth-panel" style={{ gridColumn: "1 / -1" }}>
-          <div className="auth-form">
-            <p className="auth-error">{error}</p>
-            <a href="/account" className="ghost-button">← На главную</a>
-          </div>
+      <div className="sso-page">
+        <div className="sso-card">
+          <p className="auth-error">{error}</p>
+          <a href="/account" className="ghost-button" style={{ justifyContent: "center" }}>← На главную</a>
         </div>
-      </main>
+      </div>
     );
   }
 
   if (!user || !clientInfo) {
     return (
-      <main className="auth-page">
-        <div className="auth-panel" style={{ gridColumn: "1 / -1" }}>
-          <div className="loading-card">Загрузка...</div>
-        </div>
-      </main>
+      <div className="sso-page">
+        <div className="loading-card">Загрузка...</div>
+      </div>
     );
   }
 
+  const displayName = [user.name, user.last_name].filter(Boolean).join(" ") || "Пользователь Arvexo";
+
   return (
-    <main className="auth-page">
-      <div className="auth-hero">
-        <div className="auth-hero-logo">
-          <img src="/images/arvexo-mark.png" alt="Arvexo" />
-          <span className="auth-hero-logo-word">Arvexo Account</span>
+    <div className="sso-page">
+      <div className="sso-card">
+        {/* Логотип */}
+        <div className="sso-logo">
+          <img src="/images/arvexo-mark.png" alt="Arvexo" className="sso-logo-mark" />
+          <span className="sso-logo-word">Arvexo</span>
         </div>
-        <div className="auth-hero-body">
-          <h1>Единый <em>вход</em></h1>
-          <p>Войдите один раз — используйте все сервисы Arvexo.</p>
+
+        {/* Сервис запрашивает вход */}
+        <p className="sso-service-line">
+          <strong>{clientInfo.name}</strong> запрашивает вход через Arvexo Account
+        </p>
+
+        {/* Аватар + имя */}
+        <div className="sso-identity">
+          <Avatar user={user} />
+          <h2 className="sso-identity-name">Войти как {displayName}</h2>
+          {user.email && <p className="sso-identity-email">{user.email}</p>}
         </div>
-        <div className="auth-signal-list">
-          <span>SSO</span>
-          <span>Secure</span>
-          <span>One Account</span>
-        </div>
+
+        {error && <p className="auth-error">{error}</p>}
+
+        {/* Кнопки */}
+        <button
+          className="primary-button"
+          type="button"
+          onClick={confirm}
+          disabled={loading}
+        >
+          {loading ? "Перенаправляем..." : "Продолжить"}
+        </button>
+
+        <button className="sso-switch-btn" type="button" onClick={switchAccount}>
+          Использовать другой аккаунт
+        </button>
       </div>
-
-      <div className="auth-panel">
-        <div className="auth-form">
-          <div className="sso-consent">
-            <div className="sso-service-badge">{clientInfo.name}</div>
-            <h2>Подтвердите вход</h2>
-            <p>
-              Вы входите в <strong>{clientInfo.name}</strong> через Arvexo Account.
-            </p>
-
-            <div className="sso-user-row">
-              <div className="sso-avatar">{(user.name || user.email || "A").slice(0, 1).toUpperCase()}</div>
-              <div>
-                <div className="sso-user-name">{user.name || "Пользователь Arvexo"}</div>
-                <div className="sso-user-email">{user.email}</div>
-              </div>
-            </div>
-
-            {error && <p className="auth-error">{error}</p>}
-
-            <button
-              className="primary-button"
-              type="button"
-              onClick={confirm}
-              disabled={loading}
-            >
-              {loading ? "Перенаправляем..." : `Продолжить в ${clientInfo.name}`}
-            </button>
-
-            <button
-              className="ghost-button sso-switch"
-              type="button"
-              onClick={switchAccount}
-            >
-              Сменить аккаунт
-            </button>
-          </div>
-        </div>
-      </div>
-    </main>
+    </div>
   );
 }
 
