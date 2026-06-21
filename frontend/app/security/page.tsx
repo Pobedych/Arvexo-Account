@@ -3,7 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { AccountLayout } from "@/components/AccountLayout";
-import { TelegramLoginButton } from "@/components/TelegramLoginButton";
 import { API_URL, apiRequest, refreshAccessToken, setAccessToken, type Identity, type ProviderStatus } from "@/lib/api";
 
 const PROVIDER_LABELS: Record<string, string> = {
@@ -149,14 +148,11 @@ function SecurityPageInner() {
                 <span>Подключить Яндекс</span>
               </a>
             )}
-            {providers.telegram && providers.telegram_bot_username && !identities?.some((i) => i.provider === "telegram") && (
-              <div className="provider-button provider-telegram-wrap">
-                <TelegramLoginButton
-                  botUsername={providers.telegram_bot_username}
-                  onSuccess={() => { setSuccess("Telegram успешно подключён"); setIdentities((prev) => prev ? [...prev, { provider: "telegram", provider_email: null, created_at: new Date().toISOString() }] : prev); }}
-                  onError={(msg) => setError(msg)}
-                />
-              </div>
+            {providers.telegram && !identities?.some((i) => i.provider === "telegram") && (
+              <a className="provider-button" href={`${API_URL}/auth/telegram/connect`}>
+                <span>✈</span>
+                <span>Подключить Telegram</span>
+              </a>
             )}
           </div>
         </section>

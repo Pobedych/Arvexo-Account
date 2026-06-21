@@ -30,9 +30,10 @@ class Settings(BaseSettings):
     yandex_client_secret: str = ""
     yandex_redirect_uri: str = "http://localhost:8032/auth/yandex/callback"
 
-    # Telegram Login Widget
+    # Telegram OIDC
     telegram_bot_token: str = ""
     telegram_bot_username: str = ""
+    telegram_redirect_uri: str = "http://localhost:8032/auth/telegram/callback"
 
     # SSO seed
     seed_arvexo_study_client: bool = True

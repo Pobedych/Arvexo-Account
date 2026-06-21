@@ -72,13 +72,14 @@ def hash_token(token: str) -> str:
 
 # ── OAuth state JWT (used as CSRF protection in OAuth flows) ─────────────────
 
-def create_oauth_state(action: str, user_id: str | None = None) -> str:
+def create_oauth_state(action: str, user_id: str | None = None, extra: dict | None = None) -> str:
     now = utc_now()
     payload = {
         "type": "oauth_state",
         "nonce": secrets.token_urlsafe(16),
         "action": action,
         "user_id": user_id,
+        "extra": extra or {},
         "iat": int(now.timestamp()),
         "exp": int((now + timedelta(minutes=_OAUTH_STATE_TTL_MINUTES)).timestamp()),
     }

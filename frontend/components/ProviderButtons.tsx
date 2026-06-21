@@ -1,18 +1,14 @@
 "use client";
 
 import { Mail } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { API_URL } from "@/lib/api";
 import type { ProviderStatus } from "@/lib/api";
-import { TelegramLoginButton } from "./TelegramLoginButton";
 
 type ProviderButtonsProps = {
   providers: ProviderStatus | null;
 };
 
 export function ProviderButtons({ providers }: ProviderButtonsProps) {
-  const router = useRouter();
-
   return (
     <div className="provider-list" aria-label="Внешние способы входа">
       <button className="provider-button provider-email" type="button" disabled>
@@ -21,22 +17,22 @@ export function ProviderButtons({ providers }: ProviderButtonsProps) {
         <small>Форма выше</small>
       </button>
 
-      {/* Google — intentionally disabled */}
-      <button className="provider-button" type="button" disabled key="google">
+      {/* Google — намеренно отключён */}
+      <button className="provider-button" type="button" disabled>
         <span className="provider-letter provider-google">G</span>
         <span>Google</span>
         <small>Скоро</small>
       </button>
 
-      {/* Yandex */}
+      {/* Яндекс */}
       {providers?.yandex ? (
-        <a className="provider-button" href={`${API_URL}/auth/yandex`} key="yandex">
+        <a className="provider-button" href={`${API_URL}/auth/yandex`}>
           <span className="provider-letter provider-yandex">Я</span>
           <span>Яндекс</span>
-          <small>Доступно</small>
+          <small>Войти</small>
         </a>
       ) : (
-        <button className="provider-button" type="button" disabled key="yandex">
+        <button className="provider-button" type="button" disabled>
           <span className="provider-letter provider-yandex">Я</span>
           <span>Яндекс</span>
           <small>Скоро</small>
@@ -44,15 +40,14 @@ export function ProviderButtons({ providers }: ProviderButtonsProps) {
       )}
 
       {/* Telegram */}
-      {providers?.telegram && providers.telegram_bot_username ? (
-        <div className="provider-button provider-telegram-wrap" key="telegram">
-          <TelegramLoginButton
-            botUsername={providers.telegram_bot_username}
-            onSuccess={() => router.push("/account")}
-          />
-        </div>
+      {providers?.telegram ? (
+        <a className="provider-button" href={`${API_URL}/auth/telegram`}>
+          <span>✈</span>
+          <span>Telegram</span>
+          <small>Войти</small>
+        </a>
       ) : (
-        <button className="provider-button" type="button" disabled key="telegram">
+        <button className="provider-button" type="button" disabled>
           <span>✈</span>
           <span>Telegram</span>
           <small>Скоро</small>
